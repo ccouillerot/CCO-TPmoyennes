@@ -1,9 +1,103 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace HNI_TPmoyennes
 {
+    class Eleve
+    {
+        public string prenom { get; } = string.Empty;
+        public string nom { get; } = string.Empty;
+        private List<Note> notes = new List<Note>();
+        private Classe EstDansClasse;
+
+        public Eleve(string iprenom, string inom, Classe classe)
+        {
+            prenom = iprenom;
+            nom = inom;
+            EstDansClasse = classe;
+        }
+
+        public void ajouterNote(Note note)
+        {
+            if (notes.Count >= 200)
+                Console.Write("Le maximum du nombre de note à été atteint : " + note.note + " est ignorée\n");
+            else
+                notes.Add(note);
+        }
+
+        public float moyenneGeneral()
+        {
+            float moyenne = 0;
+        
+            for (int i = 0; i < EstDansClasse.matieres.Count; i++)
+            {
+                moyenne += moyenneMatiere(i);
+            }
+            return (float)Math.Truncate(moyenne/EstDansClasse.matieres.Count * 100) / 100f;
+        }
+
+        public float moyenneMatiere(int matiere)
+        {
+            float moyenne = 0;
+            int count = 0;
+            foreach (Note note in notes)
+            {
+                if (note.matiere == matiere)
+                {
+                    moyenne += note.note;
+                    count++;
+                }
+            }
+            return (float)Math.Truncate(moyenne/count * 100) / 100f;
+        }
+    }
+    class Classe
+    {
+        public string nomClasse { get; } = string.Empty;
+        public List<Eleve> eleves = new List<Eleve>();
+        public List<string> matieres = new List<string>();
+
+        public Classe(string name)
+        {
+            nomClasse = name;
+        }
+
+        public void ajouterEleve(string prenom, string nom)
+        {
+            if (eleves.Count >= 30)
+                Console.Write("La Classe est pleine : " + prenom + " " + nom + " est ignoré(e)\n");
+            else
+                eleves.Add(new Eleve(prenom, nom, this));
+        }
+        public void ajouterMatiere(string nom)
+        {
+            if (matieres.Count >= 30)
+                Console.Write("Il y a déjà trop de matières enseignées : " + nom + " est ignorée\n");
+            else
+                matieres.Add(nom);
+        }
+        public float  moyenneMatiere(int matiere)
+        {
+            float moyenne = 0;
+            foreach (Eleve eleve in eleves)
+            {
+                moyenne += eleve.moyenneMatiere(matiere);
+            }
+            return (float)Math.Truncate(moyenne/eleves.Count * 100) / 100f;
+        }
+        public float moyenneGeneral()
+        {
+            float moyenne = 0;
+            for (int i = 0; i < matieres.Count; i++)
+            {
+                moyenne += moyenneMatiere(i);
+            }
+            return (float)Math.Truncate(moyenne/matieres.Count * 100) / 100f;
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
